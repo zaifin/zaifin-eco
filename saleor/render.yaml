@@ -2,8 +2,10 @@ services:
   - type: web
     name: saleor
     env: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn saleor.wsgi:application --bind 0.0.0.0:$PORT
-    postdeployCommand: |
-      python3 manage.py migrate --noinput
-      python3 manage.py shell -c "from django.contrib.sites.models import Site; Site.objects.update_or_create(id=1, defaults={'domain': 'zaifin-eco.onrender.com', 'name': 'Zaifin Eco'})"
+    buildCommand: |
+      pip install -r requirements.txt
+      python manage.py migrate --noinput
+      python3 manage.py populatedb
+      python manage.py populatedb --createsuperuser
+      python manage.py update_site --domain zaifin-eco.onrender.com --name "Zaifin Eco"
+    startCommand: gunicorn saleor.wsgi:application --bind 0.0.0.0:$PORT --workers 1
