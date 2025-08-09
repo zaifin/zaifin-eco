@@ -1,11 +1,20 @@
 services:
-  - type: web
-    name: saleor
+  - name: saleor
+    type: web
     env: python
-    buildCommand: |
-      pip install -r requirements.txt
-      python manage.py migrate --noinput
-      python3 manage.py populatedb
-      python manage.py populatedb --createsuperuser
-      python manage.py update_site --domain zaifin-eco.onrender.com --name "Zaifin Eco"
-    startCommand: gunicorn saleor.wsgi:application --bind 0.0.0.0:$PORT --workers 1
+    buildCommand: pip3 install -r requirements.txt && python manage.py migrate --no-input && python manage.py populatedb && python manage.py createsuperuser
+    startCommand: ALLOWED_HOSTS="zaifin-eco.onrender.com" gunicorn --bind :$PORT --workers 1 --worker-class uvicorn.workers.UvicornWorker saleor.asgi:application
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: saleor.settings
+      - key: DEBUG
+        value: True
+      - key: NPM_CONFIG_PRODUCTION
+        value: false
+      - key: ENABLE_ACCOUNT_CONFIRMATION_BY_EMAIL
+        value: False
+      - key: SECRET_KEY
+        generateValue: true
+      - key: PYTHON_VERSION
+        value: 3.9.0
+
