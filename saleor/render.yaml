@@ -2,19 +2,22 @@ services:
   - name: saleor
     type: web
     env: python
-    buildCommand: pip3 install -r requirements.txt && python manage.py migrate --no-input && python manage.py populatedb && python manage.py createsuperuser $$ python manage.py update_site --domain zaifin-eco.onrender.com --name "Zaifin Eco"
-    startCommand: ALLOWED_HOSTS="zaifin-eco.onrender.com" gunicorn --bind :$PORT --workers 1 --worker-class uvicorn.workers.UvicornWorker saleor.asgi:application
+    buildCommand: |
+      pip install -r requirements.txt
+      python manage.py migrate sites --noinput
+      python manage.py migrate --noinput
+      python manage.py populatedb --createsuperuser
+      python manage.py update_site --domain zaifin-eco.onrender.com --name "Zaifin Eco"
+      python manage.py showmigrations
+    startCommand: gunicorn --bind :$PORT --workers 1 --worker-class uvicorn.workers.UvicornWorker saleor.asgi:application
     envVars:
       - key: DJANGO_SETTINGS_MODULE
         value: saleor.settings
+      - key: ALLOWED_HOSTS
+        value: zaifin-eco.onrender.com
       - key: DEBUG
-        value: True
-      - key: NPM_CONFIG_PRODUCTION
-        value: false
-      - key: ENABLE_ACCOUNT_CONFIRMATION_BY_EMAIL
-        value: False
+        value: "False"  # Must be string "False" for Render
       - key: SECRET_KEY
         generateValue: true
-      - key: PYTHON_VERSION
-        value: 3.9.0
-
+      - key: DATABASE_URL
+        value: postgresql://saleor:77EvglLOhhA31Q37S25mAKZyv8OZBEHN@dpg-d2beopbe5dus7386lnj0-a/saleor_pnou
