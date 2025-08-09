@@ -9,9 +9,6 @@ if [ "$(python manage.py showmigrations | grep '\[ \]' | wc -l)" -gt 0 ]; then
     python manage.py populatedb --createsuperuser
 fi
 
-echo "Updating site info..."
-python manage.py update_site --domain "${ALLOWED_HOSTS}" --name "Zaifin Eco"
-
 echo "Collecting static files..."
 python manage.py collectstatic --no-input
 
